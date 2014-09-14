@@ -1,7 +1,13 @@
 #include <iostream>
-using namespace std;
+#include "server.h"
+
 
 int main() {
-  cout << "Hello, World!" << endl;
-  return 0;
+    std::cout << "Starting SimpleHttpServer..." << std::endl;
+
+    Server *newServer = new Server();
+    newServer->start();
+
+    delete newServer;
+    return 0;
 }

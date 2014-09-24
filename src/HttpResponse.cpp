@@ -1,7 +1,6 @@
 #include "HttpResponse.h"
 #include "server.h"
 
-#include <iostream>
 
 std::unordered_map<int, string> const HttpResponse::statusCodes = {
         {HTTP_CODE_OK, "OK"},
@@ -9,9 +8,7 @@ std::unordered_map<int, string> const HttpResponse::statusCodes = {
         {HTTP_CODE_BAD_REQUEST, "Bad Request"}
 };
 
-HttpResponse::HttpResponse(int status) {
-    this->status = status;
-
+HttpResponse::HttpResponse() {
     time_t rawTime;
     struct tm * timeInfo;
     char buffer[32];
@@ -60,11 +57,17 @@ string HttpResponse::getRawHeader() {
 
     headerLength = header.size();
 
-    std::cout << header << std::endl;
-
     return header;
 }
 
 size_t HttpResponse::getHeaderLength() {
     return headerLength;
+}
+
+void HttpResponse::setStatusCode(int status) {
+    this->status = status;
+}
+
+int HttpResponse::getStatusCode() {
+    return status;
 }

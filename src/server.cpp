@@ -9,6 +9,8 @@
 #include <arpa/inet.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <Foundation/Foundation.h>
+#include <AVFoundation/AVFoundation.h>
 
 
 std::string Server::rootDirectory = "/Users/dmitry/Desktop/http-test-suite-master/httptest";
@@ -29,30 +31,37 @@ void Server::read(bufferevent *bev, void *ctx) {
         }
 
         int fileDescriptor = open(fileName.c_str(), O_RDONLY | O_NONBLOCK);
+        struct stat fileStat;
 
+        HttpResponse response;
         if (fileDescriptor != FILE_NOT_FOUND) {
-            struct stat fileStat;
             fstat(fileDescriptor, &fileStat);
 
             *((int *) ctx) = fileDescriptor;
-
-            HttpResponse response(HTTP_CODE_OK);
-
-            response.setContentLength((size_t) fileStat.st_size);
-
             string contentType = "text/html";
+
+            response.setStatusCode(HTTP_CODE_OK);
+            response.setContentLength((size_t) fileStat.st_size);
             response.setContentType(contentType);
-
-            string responseHeader = response.getRawHeader();
-
-            evbuffer_add(output,
-                    (void *) responseHeader.c_str(),
-                    response.getHeaderLength());
-
-            evbuffer_add_file(output, fileDescriptor, 0, fileStat.st_size);
         } else {
+            string contentType = "text/html";
 
+            response.setStatusCode(HTTP_CODE_NOT_FOUND);
+            response.setContentLength(0);
+            response.setContentType(contentType);
         }
+
+        string responseHeader = response.getRawHeader();
+
+        evbuffer_add(output,
+                (void *) responseHeader.c_str(),
+                response.getHeaderLength());
+
+        if (request.getMethod() != "HEAD" && response.getStatusCode() == HTTP_CODE_OK) {
+            evbuffer_add_file(output, fileDescriptor, 0, fileStat.st_size);
+        }
+
+
     } catch (BadRequestException &e) {
         std::cout << "Bad request" << std::endl;
     }

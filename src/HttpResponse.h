@@ -14,14 +14,15 @@ using std::unordered_map;
 
 class HttpResponse {
 public:
-    HttpResponse(int status);
+    HttpResponse();
 
     void setContentLength(size_t contentLength);
     void setContentType(string &contentType);
+    void setStatusCode(int status);
 
     size_t getHeaderLength();
-
     string getRawHeader();
+    int getStatusCode();
 
     static std::unordered_map<int, string> const statusCodes;
 

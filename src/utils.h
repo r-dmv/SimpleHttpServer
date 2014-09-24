@@ -6,4 +6,4 @@
 
 std::vector<std::shared_ptr<std::string>> splitString(unsigned char *, size_t length);
 std::string getMimeType(std::string fileName);
-
+std::string UriDecode(const std::string & sSrc);

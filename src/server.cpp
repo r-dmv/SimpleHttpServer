@@ -104,6 +104,10 @@ void Server::acceptError(evconnlistener *listener, void *ctx) {
     fprintf(stderr, "Got an error %d (%s) on the listener. "
             "Shutting down.\n", err, evutil_socket_error_to_string(err));
 
+    if (*((int *)ctx) > 0) {
+        close(*((int *)ctx));
+    }
+    delete ctx;
     event_base_loopexit(base, NULL);
 }
 

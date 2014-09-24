@@ -10,7 +10,8 @@ using std::unordered_map;
 
 #define HTTP_CODE_OK 200
 #define HTTP_CODE_NOT_FOUND 404
-#define HTTP_CODE_BAD_REQUEST 405
+#define HTTP_CODE_BAD_REQUEST 400
+#define HTTP_CODE_FORBIDDEN 403
 
 class HttpResponse {
 public:

@@ -6,7 +6,7 @@
 using std::smatch;
 using std::regex_search;
 
-regex const HttpRequest::firstLinePattern = regex("(GET|PUT|POST|DELETE|HEAD)\\s(.*)\\s(\\S+)");
+regex const HttpRequest::firstLinePattern = regex("(GET|PUT|POST|DELETE|HEAD)\\s([^\\?]*)\\?{0,1}(.*)\\s(\\S+)");
 
 HttpRequest::HttpRequest(unsigned char *rawRequest, size_t length) {
     auto requestRows = splitString(rawRequest, length);
@@ -18,8 +18,9 @@ HttpRequest::HttpRequest(unsigned char *rawRequest, size_t length) {
     smatch requestLine;
     if (regex_search(*(requestRows[0].get()), requestLine, HttpRequest::firstLinePattern) && requestLine.size() > 3) {
         this->method = requestLine[1];
-        this->path = requestLine[2];
-        this->httpVersion = requestLine[3];
+        this->path = UriDecode(requestLine[2]);
+
+        this->httpVersion = requestLine[4];
     } else {
         throw BadRequestException();
     }

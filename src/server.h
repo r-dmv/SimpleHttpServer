@@ -3,7 +3,7 @@
 #include <event2/listener.h>
 #include <string>
 
-#define INDEX_FILE "wikipedia_russia.html"
+#define INDEX_FILE "index.html"
 #define SERVER_NAME "SimpleHttpServer"
 #define SERVER_VERSION "0.1.0"
 #define FILE_NOT_FOUND -1

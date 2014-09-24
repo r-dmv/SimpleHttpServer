@@ -12,7 +12,7 @@
 #include <fcntl.h>
 
 
-std::string Server::rootDirectory = "/Users/dmitry/Desktop/http-test-suite-master/httptest";
+std::string Server::rootDirectory = "/Users/dmitry/Desktop/http-test-suite-master";
 
 void Server::read(bufferevent *bev, void *ctx) {
     evbuffer *input = bufferevent_get_input(bev);
@@ -28,8 +28,16 @@ void Server::read(bufferevent *bev, void *ctx) {
         HttpRequest request(evbuffer_pullup(input, inputSize), inputSize);
 
         string fileName = rootDirectory + request.getPath();
+        string requestMethod = request.getMethod();
+        bool useIndex = false;
+
+        if (requestMethod != "GET" && requestMethod != "HEAD") {
+            throw BadRequestException();
+        }
+
         if (fileName.back() == '/') {
             fileName = fileName + INDEX_FILE;
+            useIndex = true;
         }
 
         fileDescriptor = open(fileName.c_str(), O_RDONLY | O_NONBLOCK);
@@ -43,10 +51,20 @@ void Server::read(bufferevent *bev, void *ctx) {
             response.setStatusCode(HTTP_CODE_OK);
             response.setContentLength((size_t) fileStat.st_size);
             response.setContentType(contentType);
+
+            if (requestMethod == "HEAD") {
+                sendFile = false;
+            }
+
         } else {
             string contentType = "text/html";
 
-            response.setStatusCode(HTTP_CODE_NOT_FOUND);
+            if (useIndex) {
+                response.setStatusCode(HTTP_CODE_FORBIDDEN);
+            } else {
+                response.setStatusCode(HTTP_CODE_NOT_FOUND);
+            }
+
             response.setContentLength(0);
             response.setContentType(contentType);
             sendFile = false;

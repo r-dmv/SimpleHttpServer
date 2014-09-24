@@ -5,7 +5,8 @@
 std::unordered_map<int, string> const HttpResponse::statusCodes = {
         {HTTP_CODE_OK, "OK"},
         {HTTP_CODE_NOT_FOUND, "Not Found"},
-        {HTTP_CODE_BAD_REQUEST, "Bad Request"}
+        {HTTP_CODE_BAD_REQUEST, "Bad Request"},
+        {HTTP_CODE_FORBIDDEN, "Forbidden"}
 };
 
 HttpResponse::HttpResponse() {
@@ -48,6 +49,12 @@ string HttpResponse::getRawHeader() {
     header += "\r\n";
     // content-type
     header += "Content-Type: " + contentType;
+
+    /* Commented for httptest.py
+    if (contentType == "text/html") {
+        header += "; charset=utf-8";
+    }*/
+
     header += "\r\n";
     // connection
     header += "Connection: " + connection;

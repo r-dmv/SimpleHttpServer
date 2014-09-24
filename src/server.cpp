@@ -46,7 +46,7 @@ void Server::read(bufferevent *bev, void *ctx) {
             fstat(fileDescriptor, &fileStat);
 
             *((int *) ctx) = fileDescriptor;
-            string contentType = getMimeType(fileName);
+            string contentType = GetMimeType(fileName);
 
             response.setStatusCode(HTTP_CODE_OK);
             response.setContentLength((size_t) fileStat.st_size);

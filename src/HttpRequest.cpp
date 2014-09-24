@@ -9,7 +9,7 @@ using std::regex_search;
 regex const HttpRequest::firstLinePattern = regex("(GET|PUT|POST|DELETE|HEAD)\\s([^\\?]*)\\?{0,1}(.*)\\s(\\S+)");
 
 HttpRequest::HttpRequest(unsigned char *rawRequest, size_t length) {
-    auto requestRows = splitString(rawRequest, length);
+    auto requestRows = SplitString(rawRequest, length);
 
     if (requestRows.size() < 1) {
         throw BadRequestException();

@@ -38,7 +38,7 @@ const char HEX2DEC[256] = {
         /* F */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1
 };
 
-std::vector<std::shared_ptr<std::string>> splitString(unsigned char *str, size_t length) {
+std::vector<std::shared_ptr<std::string>> SplitString(unsigned char *str, size_t length) {
     std::vector<std::shared_ptr<std::string>> result;
     size_t passed = 0;
 
@@ -53,7 +53,7 @@ std::vector<std::shared_ptr<std::string>> splitString(unsigned char *str, size_t
     return result;
 }
 
-std::string getMimeType(std::string fileName) {
+std::string GetMimeType(std::string fileName) {
     std::regex  fileExtensionRegex("(\\.[^.]+)$");
     std::smatch fileExtension;
 

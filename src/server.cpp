@@ -1,5 +1,6 @@
 #include "server.h"
 #include "HttpRequest.h"
+#include "utils.h"
 #include "HttpResponse.h"
 
 #include <unistd.h>
@@ -9,8 +10,6 @@
 #include <arpa/inet.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <Foundation/Foundation.h>
-#include <AVFoundation/AVFoundation.h>
 
 
 std::string Server::rootDirectory = "/Users/dmitry/Desktop/http-test-suite-master/httptest";
@@ -39,7 +38,7 @@ void Server::read(bufferevent *bev, void *ctx) {
             fstat(fileDescriptor, &fileStat);
 
             *((int *) ctx) = fileDescriptor;
-            string contentType = "text/html";
+            string contentType = getMimeType(fileName);
 
             response.setStatusCode(HTTP_CODE_OK);
             response.setContentLength((size_t) fileStat.st_size);

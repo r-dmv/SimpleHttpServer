@@ -19,10 +19,13 @@ void Server::read(bufferevent *bev, void *ctx) {
     evbuffer *input = bufferevent_get_input(bev);
     evbuffer *output = bufferevent_get_output(bev);
 
-
-    size_t inputSize = evbuffer_get_length(input);
+    HttpResponse response;
+    bool sendFile = true;
+    int fileDescriptor = 0;
+    struct stat fileStat;
 
     try {
+        size_t inputSize = evbuffer_get_length(input);
         HttpRequest request(evbuffer_pullup(input, inputSize), inputSize);
 
         string fileName = rootDirectory + request.getPath();
@@ -30,10 +33,8 @@ void Server::read(bufferevent *bev, void *ctx) {
             fileName = fileName + INDEX_FILE;
         }
 
-        int fileDescriptor = open(fileName.c_str(), O_RDONLY | O_NONBLOCK);
-        struct stat fileStat;
+        fileDescriptor = open(fileName.c_str(), O_RDONLY | O_NONBLOCK);
 
-        HttpResponse response;
         if (fileDescriptor != FILE_NOT_FOUND) {
             fstat(fileDescriptor, &fileStat);
 
@@ -49,21 +50,26 @@ void Server::read(bufferevent *bev, void *ctx) {
             response.setStatusCode(HTTP_CODE_NOT_FOUND);
             response.setContentLength(0);
             response.setContentType(contentType);
+            sendFile = false;
         }
-
-        string responseHeader = response.getRawHeader();
-
-        evbuffer_add(output,
-                (void *) responseHeader.c_str(),
-                response.getHeaderLength());
-
-        if (request.getMethod() != "HEAD" && response.getStatusCode() == HTTP_CODE_OK) {
-            evbuffer_add_file(output, fileDescriptor, 0, fileStat.st_size);
-        }
-
 
     } catch (BadRequestException &e) {
-        std::cout << "Bad request" << std::endl;
+        string contentType = "text/html";
+
+        response.setStatusCode(HTTP_CODE_BAD_REQUEST);
+        response.setContentLength(0);
+        response.setContentType(contentType);
+        sendFile = false;
+    }
+
+    string responseHeader = response.getRawHeader();
+
+    evbuffer_add(output,
+            (void *) responseHeader.c_str(),
+            response.getHeaderLength());
+
+    if (sendFile) {
+        evbuffer_add_file(output, fileDescriptor, 0, fileStat.st_size);
     }
 
 }

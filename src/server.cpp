@@ -1,47 +1,91 @@
 #include "server.h"
+#include "HttpRequest.h"
+#include "HttpResponse.h"
 
 #include <unistd.h>
 #include <iostream>
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 
-void Server::read(struct bufferevent *bev, void *ctx) {
+std::string Server::rootDirectory = "/Users/dmitry/Desktop/http-test-suite-master/httptest";
+
+void Server::read(bufferevent *bev, void *ctx) {
     evbuffer *input = bufferevent_get_input(bev);
     evbuffer *output = bufferevent_get_output(bev);
 
-    //std::cout << evbuffer_pullup(input, evbuffer_get_length(input)) << std::endl;
-    evbuffer_add(output,
-            (void *) "HTTP/1.1 200 OK\r\nServer: nginx/1.2.4\r\nDate: Sun, 14 Sep 2014 18:35:55 GMT\r\nContent-Type: text/html; charset=windows-1251\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
-            strlen(  "HTTP/1.1 200 OK\r\nServer: nginx/1.2.4\r\nDate: Sun, 14 Sep 2014 18:35:55 GMT\r\nContent-Type: text/html; charset=windows-1251\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"));
+
+    size_t inputSize = evbuffer_get_length(input);
+
+    try {
+        HttpRequest request(evbuffer_pullup(input, inputSize), inputSize);
+
+        string fileName = rootDirectory + request.getPath();
+        if (fileName.back() == '/') {
+            fileName = fileName + INDEX_FILE;
+        }
+
+        int fileDescriptor = open(fileName.c_str(), O_RDONLY | O_NONBLOCK);
+
+        if (fileDescriptor != FILE_NOT_FOUND) {
+            struct stat fileStat;
+            fstat(fileDescriptor, &fileStat);
+
+            *((int *) ctx) = fileDescriptor;
+
+            HttpResponse response(HTTP_CODE_OK);
+
+            response.setContentLength((size_t) fileStat.st_size);
+
+            string contentType = "text/html";
+            response.setContentType(contentType);
+
+            string responseHeader = response.getRawHeader();
+
+            evbuffer_add(output,
+                    (void *) responseHeader.c_str(),
+                    response.getHeaderLength());
+
+            evbuffer_add_file(output, fileDescriptor, 0, fileStat.st_size);
+        } else {
+
+        }
+    } catch (BadRequestException &e) {
+        std::cout << "Bad request" << std::endl;
+    }
 
 }
 
-void Server::dropConnection(struct bufferevent *bev, void *ctx) {
-    std::cout << "Write" << std::endl;
+void Server::dropConnection(bufferevent *bev, void *ctx) {
+    bufferevent_free(bev);
+
+    close(*((int *)ctx));
+    delete (int *)ctx;
 }
 
-void Server::eventCallback(struct bufferevent *bev, short events, void *ctx) {
+void Server::eventCallback(bufferevent *bev, short events, void *ctx) {
     if (events & (BEV_EVENT_EOF | BEV_EVENT_ERROR)) {
         bufferevent_free(bev);
-        std::cout << "Socket closed" << std::endl;
     }
 }
 
-void Server::acceptConnection(struct evconnlistener *listener,
-        evutil_socket_t fd, struct sockaddr *address, int socketLength,
+void Server::acceptConnection(evconnlistener *listener,
+        evutil_socket_t fd, sockaddr *address, int socketLength,
         void *ctx) {
     event_base *base = evconnlistener_get_base(listener);
     bufferevent *bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE);
 
-    bufferevent_setcb(bev, read, dropConnection, eventCallback, NULL);
+    int *fileDescriptor = new int(0);
+    bufferevent_setcb(bev, read, dropConnection, eventCallback, fileDescriptor);
 
     bufferevent_enable(bev, EV_READ);
 }
 
-void Server::acceptError(struct evconnlistener *listener, void *ctx) {
-    struct event_base *base = evconnlistener_get_base(listener);
+void Server::acceptError(evconnlistener *listener, void *ctx) {
+    event_base *base = evconnlistener_get_base(listener);
     int err = EVUTIL_SOCKET_ERROR();
     fprintf(stderr, "Got an error %d (%s) on the listener. "
             "Shutting down.\n", err, evutil_socket_error_to_string(err));
@@ -50,14 +94,11 @@ void Server::acceptError(struct evconnlistener *listener, void *ctx) {
 }
 
 void Server::start() {
-    std::cout << "Parent PID: " << getpid() << std::endl;
-
-    struct event_base *base;
-    struct evconnlistener *listener;
-    struct sockaddr_in sin;
+    event_base *base;
+    evconnlistener *listener;
+    sockaddr_in sin;
 
     int port = 8010;
-
 
     base = event_base_new();
     if (!base) {
@@ -73,7 +114,7 @@ void Server::start() {
 
     listener = evconnlistener_new_bind(base, acceptConnection, NULL,
             LEV_OPT_CLOSE_ON_FREE|LEV_OPT_REUSEABLE, -1,
-            (struct sockaddr*)&sin, sizeof(sin));
+            (sockaddr*)&sin, sizeof(sin));
 
     if (!listener) {
         perror("Couldn't create listener");
@@ -92,7 +133,5 @@ void Server::start() {
         }
     }
 
-
     event_base_dispatch(base);
-
 }

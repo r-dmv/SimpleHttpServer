@@ -28,3 +28,4 @@ private:
 };
 
 class BadRequestException {};
+class Forbidden {};

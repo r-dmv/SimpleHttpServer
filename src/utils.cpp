@@ -99,3 +99,31 @@ std::string UriDecode(const std::string & sSrc) {
     delete [] pStart;
     return sResult;
 }
+
+
+bool IsDirectoryOutOfRoot(std::string &fileName) {
+    char const *strFileName = fileName.c_str();
+    int fileDeep = 0;
+
+    std::string currentDirectory;
+    for(int i = 0; i < fileName.size() && fileDeep >= 0; i++) {
+        if (strFileName[i] == '/') {
+            if (i != 0) {
+                if (currentDirectory == "..") {
+                    fileDeep--;
+                } else {
+                    fileDeep++;
+                }
+                currentDirectory.clear();
+            }
+        } else {
+            currentDirectory += strFileName[i];
+        }
+    }
+
+    if (fileDeep < 0) {
+        return false;
+    }
+
+    return true;
+}

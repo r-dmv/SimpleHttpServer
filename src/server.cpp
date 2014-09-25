@@ -11,7 +11,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-
 std::string Server::rootDirectory = "/Users/dmitry/Desktop/http-test-suite-master";
 
 void Server::read(bufferevent *bev, void *ctx) {
@@ -38,6 +37,10 @@ void Server::read(bufferevent *bev, void *ctx) {
         if (fileName.back() == '/') {
             fileName = fileName + INDEX_FILE;
             useIndex = true;
+        }
+
+        if (!IsDirectoryOutOfRoot(fileName)) {
+            throw Forbidden();
         }
 
         fileDescriptor = open(fileName.c_str(), O_RDONLY | O_NONBLOCK);
@@ -74,6 +77,13 @@ void Server::read(bufferevent *bev, void *ctx) {
         string contentType = "text/html";
 
         response.setStatusCode(HTTP_CODE_BAD_REQUEST);
+        response.setContentLength(0);
+        response.setContentType(contentType);
+        sendFile = false;
+    } catch (Forbidden &e) {
+        string contentType = "text/html";
+
+        response.setStatusCode(HTTP_CODE_FORBIDDEN);
         response.setContentLength(0);
         response.setContentType(contentType);
         sendFile = false;
@@ -125,7 +135,7 @@ void Server::acceptError(evconnlistener *listener, void *ctx) {
     if (*((int *)ctx) > 0) {
         close(*((int *)ctx));
     }
-    delete ctx;
+    delete (int *) ctx;
     event_base_loopexit(base, NULL);
 }
 

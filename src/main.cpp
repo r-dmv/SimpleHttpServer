@@ -8,6 +8,7 @@ int main() {
     Server *newServer = new Server();
     newServer->start();
 
+
     delete newServer;
     return 0;
 }

@@ -1,6 +1,6 @@
 #include "HttpResponse.h"
 #include "server.h"
-
+#include <cstring>
 
 std::unordered_map<int, string> const HttpResponse::statusCodes = {
         {HTTP_CODE_OK, "OK"},

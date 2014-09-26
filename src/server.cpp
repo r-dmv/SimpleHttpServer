@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <cstring>
 
 std::string Server::rootDirectory = "/Users/dmitry/Documents/SimpleHttpServer/test";
 

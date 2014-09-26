@@ -8,7 +8,7 @@ int main() {
     Server *newServer = new Server();
     newServer->start();
 
-
+    std::cout << "Shutdown SimpleHttpServer..." << std::endl;
     delete newServer;
     return 0;
 }

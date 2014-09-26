@@ -29,3 +29,4 @@ private:
 
 class BadRequestException {};
 class Forbidden {};
+class NotFound{};

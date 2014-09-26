@@ -9,7 +9,7 @@ std::unordered_map<int, string> const HttpResponse::statusCodes = {
         {HTTP_CODE_FORBIDDEN, "Forbidden"}
 };
 
-HttpResponse::HttpResponse() {
+HttpResponse::HttpResponse() : connection("close"), contentType("text/html"), contentLength(0) {
     time_t rawTime;
     struct tm * timeInfo;
     char buffer[32];
@@ -19,8 +19,6 @@ HttpResponse::HttpResponse() {
 
     strftime(buffer, 32, "%a, %d %b %Y %X %Z", timeInfo);
     this->date = string(buffer, buffer + strlen(buffer) - 1);
-
-    this->connection = "close";
 }
 
 void HttpResponse::setContentLength(size_t contentLength) {

@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-std::string Server::rootDirectory = "/Users/dmitry/Desktop/http-test-suite-master";
+std::string Server::rootDirectory = "/Users/dmitry/Documents/SimpleHttpServer/test";
 
 void Server::read(bufferevent *bev, void *ctx) {
     evbuffer *input = bufferevent_get_input(bev);
@@ -60,32 +60,24 @@ void Server::read(bufferevent *bev, void *ctx) {
             }
 
         } else {
-            string contentType = "text/html";
-
             if (useIndex) {
-                response.setStatusCode(HTTP_CODE_FORBIDDEN);
-            } else {
-                response.setStatusCode(HTTP_CODE_NOT_FOUND);
+                throw Forbidden();
             }
 
-            response.setContentLength(0);
-            response.setContentType(contentType);
-            sendFile = false;
+            throw NotFound();
         }
 
     } catch (BadRequestException &e) {
-        string contentType = "text/html";
-
         response.setStatusCode(HTTP_CODE_BAD_REQUEST);
-        response.setContentLength(0);
-        response.setContentType(contentType);
+
         sendFile = false;
     } catch (Forbidden &e) {
-        string contentType = "text/html";
-
         response.setStatusCode(HTTP_CODE_FORBIDDEN);
-        response.setContentLength(0);
-        response.setContentType(contentType);
+
+        sendFile = false;
+    } catch (NotFound &e) {
+        response.setStatusCode(HTTP_CODE_NOT_FOUND);
+
         sendFile = false;
     }
 

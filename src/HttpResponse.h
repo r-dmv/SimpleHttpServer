@@ -8,6 +8,8 @@
 using std::string;
 using std::unordered_map;
 
+#define DATE_STR_LENGTH 30
+
 #define HTTP_CODE_OK 200
 #define HTTP_CODE_NOT_FOUND 404
 #define HTTP_CODE_BAD_REQUEST 400

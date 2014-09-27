@@ -12,13 +12,13 @@ std::unordered_map<int, string> const HttpResponse::statusCodes = {
 HttpResponse::HttpResponse() : connection("close"), contentType("text/html"), contentLength(0) {
     time_t rawTime;
     struct tm * timeInfo;
-    char buffer[30] = {0};
+    char buffer[DATE_STR_LENGTH] = {0};
 
 
     time(&rawTime);
     timeInfo = gmtime(&rawTime);
 
-    strftime(buffer, 30, "%a, %d %b %Y %X ", timeInfo);
+    strftime(buffer, DATE_STR_LENGTH, "%a, %d %b %Y %X ", timeInfo);
     this->date = string(buffer, buffer + strlen(buffer) - 1) + " GMT";
 }
 

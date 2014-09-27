@@ -1,7 +1,6 @@
 #include "utils.h"
 #include <unordered_map>
 #include <regex>
-#include <AppKit/AppKit.h>
 
 std::unordered_map<std::string, std::string> const mimeTable = {
         {".htm", "text/html"},

@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <unordered_map>
 //#include <regex>
+#include <regex>
 
 std::unordered_map<std::string, std::string> const mimeTable = {
         {".htm", "text/html"},
@@ -112,7 +113,9 @@ bool IsDirectoryOutOfRoot(std::string &fileName) {
                 if (currentDirectory == "..") {
                     fileDeep--;
                 } else {
-                    fileDeep++;
+                    if (currentDirectory != "" || currentDirectory != ".") {
+                        fileDeep++;
+                    }
                 }
                 currentDirectory.clear();
             }

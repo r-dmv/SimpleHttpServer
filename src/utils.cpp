@@ -1,6 +1,6 @@
 #include "utils.h"
 #include <unordered_map>
-#include <regex>
+//#include <regex>
 
 std::unordered_map<std::string, std::string> const mimeTable = {
         {".htm", "text/html"},
@@ -54,7 +54,7 @@ std::vector<std::shared_ptr<std::string>> SplitString(unsigned char *str, size_t
 }
 
 std::string GetMimeType(std::string fileName) {
-    std::regex  fileExtensionRegex("(\\.[^.]+)$");
+    /*std::regex  fileExtensionRegex("(\\.[^.]+)$");
     std::smatch fileExtension;
 
     std::regex_search(fileName, fileExtension, fileExtensionRegex);
@@ -65,7 +65,7 @@ std::string GetMimeType(std::string fileName) {
         } catch(...) {
             return "text/html";
         }
-    }
+    }*/
     return "text/html";
 }
 

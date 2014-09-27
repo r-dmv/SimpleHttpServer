@@ -1,10 +1,10 @@
 #pragma once
 
 #include <string>
-#include <regex>
+//#include <regex>
 
 using std::string;
-using std::regex;
+//using std::regex;
 
 class HttpRequest {
 private:
@@ -20,7 +20,7 @@ public:
     void setHttpVersion(string const &httpVersion);
 
 private:
-    static regex const firstLinePattern;
+    //static regex const firstLinePattern;
 
     string method;
     string path;

@@ -1,12 +1,12 @@
 #include "HttpRequest.h"
-#include <regex>
+//#include <regex>
 #include "utils.h"
 #include <iostream>
 
-using std::smatch;
-using std::regex_search;
+/*using std::smatch;
+using std::regex_search;*/
 
-regex const HttpRequest::firstLinePattern = regex("(GET|PUT|POST|DELETE|HEAD)\\s([^\\?]*)\\?{0,1}(.*)\\s(\\S+)");
+//regex const HttpRequest::firstLinePattern = regex("(GET|PUT|POST|DELETE|HEAD)\\s([^\\?]*)\\?{0,1}(.*)\\s(\\S+)");
 
 HttpRequest::HttpRequest(unsigned char *rawRequest, size_t length) {
     auto requestRows = SplitString(rawRequest, length);
@@ -15,7 +15,7 @@ HttpRequest::HttpRequest(unsigned char *rawRequest, size_t length) {
         throw BadRequestException();
     }
 
-    smatch requestLine;
+   /* smatch requestLine;
     if (regex_search(*(requestRows[0].get()), requestLine, HttpRequest::firstLinePattern) && requestLine.size() > 3) {
         this->method = requestLine[1];
         this->path = UriDecode(requestLine[2]);
@@ -23,7 +23,11 @@ HttpRequest::HttpRequest(unsigned char *rawRequest, size_t length) {
         this->httpVersion = requestLine[4];
     } else {
         throw BadRequestException();
-    }
+    }*/
+
+    this->method = "GET";
+    this->path = "/httptest/wikipedia_russia.html";
+    this->httpVersion = "HTTP/1.1";
 
 }
 
